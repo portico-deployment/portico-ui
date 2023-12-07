@@ -41,7 +41,7 @@ const Dashboard = () => {
   const coretimeLeft = coretimeSchedule.filter(val => val.paraId = paraID).reduce((acc, val) => acc + val.amount, 0)
 
   const paraNodes = useLocalStorageContext().network?.paras?.[paraID]?.map(node =>{
-    return {...node, address:""}
+    return {...node, address: node.account.address}
   }).sort((node1, node2) => node1.name > node2.name)
 
   // STATE MANAGEMENT

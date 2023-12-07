@@ -19,34 +19,36 @@ const ConfiguratorRuntime = () => {
 
   return (
     <>
-    <CRow>
-        <CRow xs={{ cols: 1, gutter: 4 }} md={{ cols: 4 }}>
-          {runtimes.map(runtimeInfo => {
-            return (
-              <CCol key={runtimeInfo.id} xs>
-                <CCard className={(runtime.template && runtimeInfo.id === runtime.template.id) ? 'border-start border-start-4 border-start-success h-100' : 'h-100'}>
-                  <CCardImage orientation="top" src={runtimeInfo.img} />
-                  <CCardBody>
-                    <CCardTitle>{runtimeInfo.name}</CCardTitle>
-                    <CCardText>
-                      {runtimeInfo.shortDescription}
-                    </CCardText >
-                    <CButton variant="outline" className='fw-light' onClick={() => handleClick(runtimeInfo)}>Use</CButton>
-                  </CCardBody>
-                  <CCardFooter>
-                    <Link target="_blank" to={`${runtimeInfo.github}`}>
-                      <CIcon size="lg" className="text-secondary" icon={cibGithub}/>
-                    </Link>
-                  </CCardFooter>
-                </CCard>
-              </CCol>
-            )
-          })}
-        </CRow>
-    </CRow>
-    <CRow className='mt-4'>
-      <Link className='text-center' to="/configure/runtime-specs">
-          <CButton className='fw-light'>Next</CButton>
+      <CRow>
+          <CRow xs={{ cols: 1, gutter: 4 }} md={{ cols: 4 }}>
+            {runtimes.map(runtimeInfo => {
+              return (
+                <CCol key={runtimeInfo.id} xs>
+                  <CCard className={(runtime.template && runtimeInfo.id === runtime.template.id) ? 'border-start border-start-4 border-start-success h-100' : 'h-100'}>
+                    <CCardImage orientation="top" src={runtimeInfo.img} />
+                    <CCardBody className='d-flex flex-column justify-content-between'>
+                      <div>
+                      <CCardTitle>{runtimeInfo.name}</CCardTitle>
+                      <CCardText>
+                        {runtimeInfo.shortDescription}
+                      </CCardText >
+                      </div>
+                      <CButton variant="outline" color='dark' className='fw-light mt-2' onClick={() => handleClick(runtimeInfo)}>Use</CButton>
+                    </CCardBody>
+                    <CCardFooter>
+                      <Link target="_blank" to={`${runtimeInfo.github}`}>
+                        <CIcon size="lg" className="text-secondary" icon={cibGithub}/>
+                      </Link>
+                    </CCardFooter>
+                  </CCard>
+                </CCol>
+              )
+            })}
+          </CRow>
+      </CRow>
+      <CRow className='mt-4 mb-2'>
+        <Link className='text-center' to="/configure/runtime-specs">
+          <CButton variant="outline" className='fw-light'>Next</CButton>
         </Link>
       </CRow>
     </>
