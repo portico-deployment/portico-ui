@@ -152,7 +152,6 @@ export function ApiConnectRC ({ children }) {
     const scheduleCall = async () => {
         //We want to schedule only if the parachain is onboarded
         //This is used only at the very beginning
-        console.log("running first schedule")
         if(!paraID) return;
         
         const scheduledBlock = parseInt(rcHeadInfo) + parseInt(5);
@@ -179,7 +178,6 @@ export function ApiConnectRC ({ children }) {
               // console.log(phase.toString() + ' : ' + section + '.' + method + ' ' + data.toString());
             });
         });
-        console.log("Finished first schedule")
     }
 
     useEffect(() => {
@@ -187,10 +185,7 @@ export function ApiConnectRC ({ children }) {
             await scheduleCall()
         }
         
-        // console.log("paraStatus", paraStatus)
-        // console.log("coretime.scheduled", coretime.scheduled )
         if (isReady && api && paraStatus === 'Parathread' && !coretime.scheduled) {
-          console.log("RUNING IF INSIDE OF USE EFFECT")
           schedule()
         }
     },[paraStatus])

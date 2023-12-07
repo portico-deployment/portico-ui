@@ -20,11 +20,8 @@ const ConfiguratorCollators = () => {
       <CRow className='d-flex flex-row'>
           <p className='fs-5 fw-light'>Pick the number of collators to be deployed.</p>
           <CRow xs={{ cols: 1, gutter: 2 }} xl={{ cols: 4, gutter: 3 }}>
-            {/* {items} */}
             {maxAmount.map((val, index)=> {
-              console.log('running')
               let numberOfCollators = index + 1
-              console.log(numberOfCollators)
               let item;
               if(numberOfCollators === 1) {
                 item = (
