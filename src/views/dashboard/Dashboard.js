@@ -9,7 +9,6 @@ import {
   CCol,
   CRow,
   CTable,
-  CSpinner,
   CToaster,
   CToast,
   CToastClose,

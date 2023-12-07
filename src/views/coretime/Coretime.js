@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react'
-import {CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CContainer, CCardFooter, CToast, CToaster, CToastBody, CToastClose, CButton, CModal, CSpinner} from '@coreui/react'
+import {CRow, CCol, CCard, CCardBody, CCardTitle, CCardText, CContainer, CCardFooter, CToast, CToaster, CToastBody, CButton, CModal, CSpinner, CPopover} from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilPlus, cilWallet, cilAlarm, cilLoopCircular, cilXCircle } from '@coreui/icons'
 
@@ -20,10 +20,12 @@ const Coretime = () => {
 
   const toaster = useRef()
   const {paraID} = useApiContextPara();
-  const {coretimeSchedule, cancelScheduled, statusAditional, statusCancel} = useApiContextRC();
+  const {coretimeSchedule, cancelScheduled, statusAditional, statusCancel, paraStatus, rcHeadInfo} = useApiContextRC();
 
   const paraCoretime = coretimeSchedule?.filter(val => val.paraId = paraID).sort((ticket1, ticket2) => ticket1.block - ticket2.block)
-
+  const lastBlockScheduled = paraCoretime.length ? ( paraCoretime[paraCoretime.length - 1].block + paraCoretime[paraCoretime.length - 1].amount * paraCoretime[paraCoretime.length - 1].frequency) : 0; 
+  const minPossibleBlock = Math.max(lastBlockScheduled, parseInt(rcHeadInfo))
+  
   const handleCopyClick = (id) => {
     navigator.clipboard.writeText(id)
     const message = (
@@ -39,7 +41,6 @@ const Coretime = () => {
   const handleDeleteTicket = async (id) => {
     setCancellingID(id)
     await cancelScheduled(id)
-
   }
   
   return (
@@ -50,7 +51,7 @@ const Coretime = () => {
         </CCol>
         <CCol xl={{span: 2}} className='d-flex justify-content-end pe-5'>
           {
-            (statusAditional === 'Ready' || statusAditional === 'Broadcast') 
+            (statusAditional === 'Ready' || statusAditional === 'Broadcast' || paraStatus === 'Onboarding') 
               ? <CSpinner color="secondary" />
               :(
                 <CButton color="link" className='text-nowrap pe-0' onClick={() => setVisible(!visible)}>
@@ -59,7 +60,7 @@ const Coretime = () => {
               )
           }
           <CModal alignment="center" visible={visible} onClose={() => setVisible(false)} aria-labelledby="VerticallyCenteredExample">
-            <GetMore setVisible={setVisible} />
+            <GetMore setVisible={setVisible} minBlock={minPossibleBlock}/>
           </CModal>
         </CCol>
       </CRow>
@@ -89,49 +90,38 @@ const Coretime = () => {
                     }
                   </CCol>
                 </CCardTitle>
-                <CCardText>
                   <CContainer>
-                    <CRow>
-                      <CRow>
-                        <CCol xl={{span:1}}>
-                          <CIcon size="lg" icon={cilAlarm}/>
-                        </CCol>
-                        <CCol xl={{span:11}}>
-                          Next Execution [Relaychain Block]
-                        </CCol>
-                      </CRow>
-                      <CRow className='text-center'>
+                    <CRow className='mb-2'>
+                      <CCol xl={{span: 6}}>
+                        <CPopover className={'fw-lighter'} content="Next Execution [Relaychain Block]" placement="top" trigger={['hover', 'focus']}>
+                          <CIcon className='mb-1' size="xl" icon={cilAlarm}/>  
+                        </CPopover>
+                      </CCol>
+                      <CCol className='fs-5' xl={{span: 6}}>
                         {coretimeTicket && coretimeTicket.block}
-                      </CRow>
+                      </CCol>
                     </CRow>
-                    <CRow>
-                      <CRow>
-                          <CCol xl={{span:1}}>
-                            <CIcon size="lg" icon={cilLoopCircular}/>
-                          </CCol>
-                          <CCol xl={{span:11}}>
-                            Execution Frequency
-                          </CCol>
-                        </CRow>
-                        <CRow className='text-center'>
-                          {coretimeTicket && coretimeTicket.frequency}
-                        </CRow>
+                    <CRow className='mb-2'>
+                      <CCol xl={{span: 6}}>
+                        <CPopover className={'fw-lighter'} content="Execution Frequency" placement="top" trigger={['hover', 'focus']}>
+                          <CIcon className='mb-1' size="xl" icon={cilLoopCircular}/>  
+                        </CPopover>
+                      </CCol>
+                      <CCol className='fs-5' xl={{span: 6}}>
+                        {coretimeTicket && coretimeTicket.frequency}
+                      </CCol>
                     </CRow>
-                    <CRow>
-                      <CRow>
-                          <CCol xl={{span:1}}>
-                            <CIcon size="lg" icon={cilWallet}/>
-                          </CCol>
-                          <CCol xl={{span:11}}>
-                            Credits Left on Ticket
-                          </CCol>
-                        </CRow>
-                        <CRow className='text-center'>
-                          {coretimeTicket && coretimeTicket.amount}
-                        </CRow>
+                    <CRow className='mb-2'>
+                      <CCol xl={{span: 6}}>
+                        <CPopover className={'fw-lighter'} content="Credits Left on Ticket" placement="top" trigger={['hover', 'focus']}>
+                          <CIcon className='mb-1' size="xl" icon={cilWallet}/>  
+                        </CPopover>
+                      </CCol>
+                      <CCol className='fs-5' xl={{span: 6}}>
+                        {coretimeTicket && coretimeTicket.amount}
+                      </CCol>
                     </CRow>
                   </CContainer>
-                </CCardText>
               </CCardBody>
               <CCardFooter onClick={() => handleCopyClick(coretimeTicket.schedulerId)}>
                 <CToaster ref={toaster} push={toastCopy} placement="top-end" />

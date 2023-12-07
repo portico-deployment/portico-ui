@@ -5,7 +5,7 @@ import {CButton, CModalHeader, CModalTitle, CModalBody, CModalFooter, CFormInput
 import { useApiContextRC } from '../../contexts/ConnectRelayContext'
 import { useConfiguratorFormContext } from '../../contexts/ConfiguratorFormContext'
 
-const GetMore = ({setVisible}) => {
+const GetMore = ({setVisible, minBlock}) => {
     const { coretime, setCoretime } = useConfiguratorFormContext();
     const { rcHeadInfo, scheduleAdditional } = useApiContextRC();
     
@@ -16,7 +16,7 @@ const GetMore = ({setVisible}) => {
 
     const handleWhenChange = (event) => {
         let proposedWhen = Math.floor(Number(event.target.valueAsNumber));
-        if(proposedWhen < parseInt(rcHeadInfo) + parseInt(10)){
+        if(proposedWhen < (minBlock + 10)){
             setValidWhen(false)
         } else {
             setValidWhen(true)
@@ -64,18 +64,21 @@ const GetMore = ({setVisible}) => {
             </CModalHeader>
             <CModalBody>
                     <CFormInput 
+                    className='fw-lighter'
                     onChange={() => handleWhenChange(event)}
-                    min={parseInt(rcHeadInfo) + parseInt(10)}
+                    min={minBlock + 10}
                     invalid={!validWhen} 
                     step={1} 
+                    required
                     type="number" 
                     value={coretime.when ? coretime.when : ""} 
                     size="lg" 
                     aria-label="lg input example"
-                    feedbackInvalid={validWhen ? "" : `Needs to be at least 10 blocks more than current Relaychain height: ${rcHeadInfo}`}
-                    label={`Execution Block. Needs to be at least 10 blocks more than current Relaychain height (${rcHeadInfo}). If omitted will be scheduled as soon as possible.`}
+                    feedbackInvalid={validWhen ? "" : `Needs to be at least ${minBlock + 10}`}
+                    label={`Execution Block. Needs to be more than maximum between scheduled and current Relaychain head. Earliest possible (${minBlock + 10}).`}
                     />
                     <CFormInput 
+                    className='fw-lighter'
                       max={10000}
                       onChange={() => handleAmountChange(event)}
                       invalid={!validAmount} 
@@ -88,7 +91,8 @@ const GetMore = ({setVisible}) => {
                       feedbackInvalid={validAmount ? "" : "Please make it an integer below 10_000"}
                       label="Amount. Parachain Blocks to be validated"
                     />
-                    <CFormInput 
+                    <CFormInput
+                    className='fw-lighter' 
                     max={1000}
                     step={1}
                     onChange={(event) => handleEveryChange(event)}
@@ -103,10 +107,8 @@ const GetMore = ({setVisible}) => {
                     />
             </CModalBody>
             <CModalFooter>
-              <CButton color="secondary" onClick={() => setVisible(false)}>
-                  Close
-              </CButton>
-                <CButton type='submit' color="primary">Submit</CButton>
+              <CButton className='fw-lighter' variant="outline" color="dark" onClick={() => setVisible(false)}> Close </CButton>
+              <CButton className='fw-lighter' variant="outline" type='submit' color="success">Submit</CButton>
             </CModalFooter>
         </CForm>
     )
