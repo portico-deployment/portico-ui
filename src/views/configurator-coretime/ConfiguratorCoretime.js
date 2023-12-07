@@ -93,7 +93,7 @@ const ConfiguratorCoretime = () => {
       </CRow>
       <CRow className='mt-4'>
         <CCol className='d-flex justify-content-center'>
-          <CButton type="submit" className='fw-light'>Confirm</CButton>
+          <CButton type="submit" variant='outline' color='success' className='fw-light'>Confirm</CButton>
         </CCol>
       </CRow>
     </CForm>

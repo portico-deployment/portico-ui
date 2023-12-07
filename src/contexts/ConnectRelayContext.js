@@ -113,6 +113,13 @@ export function ApiConnectRC ({ children }) {
         setIsReady(false);
         setConnectedApi(null);
         setProvider(null)
+        setrcHeadInfo(null)
+        setCoretimeSchedule([])
+        setParaHead(null)
+        setParaCodeHash(null)
+        setParaStatus(null)
+        setStatusAditional("")
+        setStatusCancel("")
         await provider.disconnect();
     }
 
@@ -209,7 +216,7 @@ export function ApiConnectRC ({ children }) {
     }
 
     return (
-        <ApiContextRC.Provider value={{api, isReady, coretimeSchedule, scheduleCall, paraHead, paraCodeHash, scheduleAdditional, statusAditional, paraStatus, cancelScheduled, statusCancel, rcHeadInfo}}>
+        <ApiContextRC.Provider value={{api, isReady, coretimeSchedule, scheduleCall, paraHead, paraCodeHash, scheduleAdditional, statusAditional, paraStatus, cancelScheduled, statusCancel, rcHeadInfo, cleanupState}}>
             { children }
         </ApiContextRC.Provider>
     );

@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react'
+import React, {useState, useRef, useCallback} from 'react'
 import { Link } from 'react-router-dom'
 
 import {
@@ -29,18 +29,25 @@ import { collatorsColumns } from './collatorTableConfig'
 import { useApiContextRC } from '../../contexts/ConnectRelayContext'
 import { useApiContextPara } from '../../contexts/ConnectParaContext'
 import { useLocalStorageContext } from 'src/contexts/LocalStorageContext'
+import { useConfiguratorFormContext } from 'src/contexts/ConfiguratorFormContext'
 
 //UTILITIES
 import { cutHash } from '../../utilities/handleHash'
+import { cancelDeployment } from './cancelDeployment'
 
 const Dashboard = () => {
   
-  const {paraID, paraHeadInfo} = useApiContextPara();
-  const {coretimeSchedule, paraHead, paraCodeHash, paraStatus} = useApiContextRC();
+  const configurationContext = useConfiguratorFormContext();
+  const localStorageContext = useLocalStorageContext();
+  const apiContextPara = useApiContextPara()
+  const apiContextRC = useApiContextRC()
+
+  const {paraID, paraHeadInfo} =apiContextPara;
+  const {coretimeSchedule, paraHead, paraCodeHash, paraStatus} = apiContextRC;
 
   const coretimeLeft = coretimeSchedule.filter(val => val.paraId = paraID).reduce((acc, val) => acc + val.amount, 0)
 
-  const paraNodes = useLocalStorageContext().network?.paras?.[paraID]?.map(node =>{
+  const paraNodes = localStorageContext.network?.paras?.[paraID]?.map(node =>{
     return {...node, address: node.account.address}
   }).sort((node1, node2) => node1.name > node2.name)
 
@@ -60,6 +67,13 @@ const Dashboard = () => {
     )
     setToast(message)
   }
+
+  const handleCancelDeployment = useCallback(() => {
+    //this is not hooked to the UI
+    cancelDeployment({configurationContext, localStorageContext, apiContextPara, apiContextRC})
+  })
+
+
   const blockItems = paraHeadInfo ? paraHeadInfo.slice(0,10) : []
 
   return (

@@ -64,7 +64,7 @@ const GetMore = ({setVisible, minBlock}) => {
             </CModalHeader>
             <CModalBody>
                     <CFormInput 
-                    className='fw-lighter'
+                    className='fw-lighter mb-4'
                     onChange={() => handleWhenChange(event)}
                     min={minBlock + 10}
                     invalid={!validWhen} 
@@ -78,7 +78,7 @@ const GetMore = ({setVisible, minBlock}) => {
                     label={`Execution Block. Needs to be more than maximum between scheduled and current Relaychain head. Earliest possible (${minBlock + 10}).`}
                     />
                     <CFormInput 
-                    className='fw-lighter'
+                    className='fw-lighter mb-4'
                       max={10000}
                       onChange={() => handleAmountChange(event)}
                       invalid={!validAmount} 
@@ -92,7 +92,7 @@ const GetMore = ({setVisible, minBlock}) => {
                       label="Amount. Parachain Blocks to be validated"
                     />
                     <CFormInput
-                    className='fw-lighter' 
+                    className='fw-lighter mb-4' 
                     max={1000}
                     step={1}
                     onChange={(event) => handleEveryChange(event)}
