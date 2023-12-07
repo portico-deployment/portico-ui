@@ -2,25 +2,38 @@ import React, { createContext, useState, useEffect, useContext, useCallback } fr
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { useLocalStorageContext } from './LocalStorageContext';
 import { useApiContextPara } from './ConnectParaContext'
+import { useConfiguratorFormContext } from './ConfiguratorFormContext'
+
 import useHealthCheck from '../hooks/useHealhCheck';
 import useApiSubscription from '../hooks/unSubHook';
 import { Keyring } from "@polkadot/keyring";
 
 import { parseSchedule } from '../utilities/parseSchedule'
 
+import { generateId } from '../utilities/generateId'
+
 const ApiContextRC = createContext();
+
+const ROCOCO_MIN_COST = 10000001;
 
 export function ApiConnectRC ({ children }) {
     const { network, restart, setCoretime, coretime } = useLocalStorageContext();
     const { paraID } = useApiContextPara();
 
+    const formCoretime = useConfiguratorFormContext().coretime
+    const setFormCoretime = useConfiguratorFormContext().setCoretime
+
     const [api, setConnectedApi] = useState(null);
     const [isReady, setIsReady] = useState(false);
     const [provider, setProvider] = useState(null);
     const [rcHeadInfo, setrcHeadInfo] = useState(null);
-    const [coretimeLeft, setCoretimeLeft] = useState(null);
+    const [coretimeSchedule, setCoretimeSchedule] = useState([])
     const [paraHead, setParaHead] = useState(null);
     const [paraCodeHash, setParaCodeHash] = useState(null);
+    const [paraStatus, setParaStatus] = useState(null);
+
+    const [statusAditional, setStatusAditional] = useState("")
+    const [statusCancel, setStatusCancel] = useState("")
 
     useEffect(() =>{
         const startApi = async () => {
@@ -32,8 +45,8 @@ export function ApiConnectRC ({ children }) {
         }
         const getSchedule = async () => {
           const schedule = await api.query.scheduler.agenda.entries();
-          const _coretimeLeft = parseSchedule(schedule, api, paraID)
-          setCoretimeLeft(_coretimeLeft)
+          const _coretimeSchedule = parseSchedule(schedule, api)
+          setCoretimeSchedule(_coretimeSchedule)
         }
     
         const getParaHead = async () => {
@@ -45,11 +58,22 @@ export function ApiConnectRC ({ children }) {
           const _paraCodeHash = await (await api.query.paras.currentCodeHash(paraID)).toHuman()
           setParaCodeHash(_paraCodeHash)
         }
+
+        const getParaStatus = async () => {
+          const _paraStatus = await (await api.query.paras.paraLifecycles(paraID)).toHuman()
+          setParaStatus(_paraStatus)
+        }
     
         if(api && paraID) {
           getSchedule();
           getParaHead();
           getParaCodeHash();
+          
+          if(paraStatus !== 'Parathread'){
+            //The moment it's a Parathread we don't want to change the status anymore.
+            getParaStatus();
+          }
+
         }
     }, [network, api, paraID, rcHeadInfo])
 
@@ -63,7 +87,7 @@ export function ApiConnectRC ({ children }) {
         }
     }, [api]);
 
-  useApiSubscription(getNewRCHeads, isReady);
+    useApiSubscription(getNewRCHeads, isReady);
 
     useHealthCheck(async ()=> {restart(); cleanupState()},network);
 
@@ -89,34 +113,77 @@ export function ApiConnectRC ({ children }) {
         setIsReady(false);
         setConnectedApi(null);
         setProvider(null)
+        setrcHeadInfo(null)
+        setCoretimeSchedule([])
+        setParaHead(null)
+        setParaCodeHash(null)
+        setParaStatus(null)
+        setStatusAditional("")
+        setStatusCancel("")
         await provider.disconnect();
     }
 
-    const scheduleCall = async () => {
-        if(!paraID) return;
-        const lastScheduledBlock = rcHeadInfo * (coretime.amount * coretime.every);
-        const scheduledBlock = parseInt(rcHeadInfo) + parseInt(10);
-        const id = [212,53,147,199,21,253,211,28,97,20,26,189,4,169,159,214,130,44,133,88,133,76,205,227,154,86,132,231,165,109,162,125];
-          const keyring = new Keyring({ type: 'sr25519' })
-          const alice = keyring.addFromUri('//Alice');
-          const onDemandCall = api.tx.onDemandAssignmentProvider.forcePlaceOrder(alice.address,10000001, paraID);
-          const schedule = api.tx.scheduler.scheduleNamed(id, scheduledBlock, [coretime.every,coretime.amount], 0, onDemandCall);
+    const scheduleAdditional = async () => {
+      if(!paraID || !formCoretime.amount || !formCoretime.every) return;
       
-          await api.tx.sudo
-          .sudo(
-            schedule
-          )
+      let scheduledBlock;
+      if (!formCoretime.when || formCoretime.when < parseInt(rcHeadInfo) + parseInt(5)) {
+        scheduledBlock = parseInt(rcHeadInfo) + parseInt(5);
+      } else {
+        scheduledBlock = formCoretime.when;
+      }
+      
+      const id = generateId();
+      const keyring = new Keyring({ type: 'sr25519' })
+      
+      const alice = keyring.addFromUri('//Alice');
+      
+      const onDemandCall = api.tx.onDemandAssignmentProvider.forcePlaceOrder(alice.address, ROCOCO_MIN_COST, paraID);
+      
+      const schedule = api.tx.scheduler.scheduleNamed(id, scheduledBlock, [formCoretime.every, formCoretime.amount], 0, onDemandCall);
+      
+      await api.tx.sudo
+        .sudo(schedule) 
+        .signAndSend(alice,({ events = [], status }) => {
+          if (status.isInBlock || status.isFinalized) {
+            setFormCoretime({amount: null, every: null, when:null})
+            setStatusAditional("")
+          } else {
+            setStatusAditional(status.type)
+          }
+      });
+      setStatusAditional("")
+
+    }
+
+    const scheduleCall = async () => {
+        //We want to schedule only if the parachain is onboarded
+        //This is used only at the very beginning
+        if(!paraID) return;
+        
+        const scheduledBlock = parseInt(rcHeadInfo) + parseInt(5);
+
+        const id = generateId();
+        const keyring = new Keyring({ type: 'sr25519' })
+        
+        const alice = keyring.addFromUri('//Alice');
+        
+        const onDemandCall = api.tx.onDemandAssignmentProvider.forcePlaceOrder(alice.address, ROCOCO_MIN_COST, paraID);
+        
+        const schedule = api.tx.scheduler.scheduleNamed(id, scheduledBlock, [coretime.every,coretime.amount], 0, onDemandCall);
+        
+        await api.tx.sudo
+          .sudo(schedule) 
           .signAndSend(alice,({ events = [], status }) => {
             if (status.isInBlock) {
-              console.log('Successful schedule with hash ' + status.asInBlock.toHex());
-              setCoretime({...coretime, scheduled: true, lastBlock: lastScheduledBlock})
+              setCoretime({...coretime, scheduled: true})
             } else {
-              console.log('Status of schedule: ' + status.type);
+              // console.log('Status of schedule: ' + status.type);
             }
-        
-          events.forEach(({ phase, event: { data, method, section } }) => {
-            console.log(phase.toString() + ' : ' + section + '.' + method + ' ' + data.toString());
-          });
+
+            events.forEach(({ phase, event: { data, method, section } }) => {
+              // console.log(phase.toString() + ' : ' + section + '.' + method + ' ' + data.toString());
+            });
         });
     }
 
@@ -124,13 +191,32 @@ export function ApiConnectRC ({ children }) {
         const schedule = async () => {
             await scheduleCall()
         }
-        if (isReady && api && coretime.scheduled === false) {
-            schedule()
+        
+        if (isReady && api && paraStatus === 'Parathread' && !coretime.scheduled) {
+          schedule()
         }
-    },[isReady,api,rcHeadInfo])
+    },[paraStatus])
+
+    const cancelScheduled = async (id) => {
+      if(!!statusCancel.length) return
+      
+      const keyring = new Keyring({ type: 'sr25519' })
+      const alice = keyring.addFromUri('//Alice');
+      const schedule = api.tx.scheduler.cancelNamed(id);
+      await api.tx.sudo
+      .sudo(schedule) 
+        .signAndSend(alice,({ events = [], status }) => {
+          if (status.isInBlock || status.isFinalized) {
+            setStatusCancel("")
+          } else {
+            setStatusCancel(status.type)
+          }
+      });
+        
+    }
 
     return (
-        <ApiContextRC.Provider value={{api, isReady, coretimeLeft, paraHead, paraCodeHash, scheduleCall}}>
+        <ApiContextRC.Provider value={{api, isReady, coretimeSchedule, scheduleCall, paraHead, paraCodeHash, scheduleAdditional, statusAditional, paraStatus, cancelScheduled, statusCancel, rcHeadInfo, cleanupState}}>
             { children }
         </ApiContextRC.Provider>
     );

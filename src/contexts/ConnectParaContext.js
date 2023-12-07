@@ -85,11 +85,13 @@ export function ApiConnectPara ({ children }) {
         setIsReady(false);
         setConnectedApi(null);
         setProvider(null)
+        setParaID(null)
+        setParaHeadInfo([])
         await provider.disconnect();
     }
 
     return (
-        <ApiContextPara.Provider value={{api, isReady, paraID, paraHeadInfo,tokenSymbol}}>
+        <ApiContextPara.Provider value={{api, isReady, paraID, paraHeadInfo,tokenSymbol, cleanupState}}>
             { children }
         </ApiContextPara.Provider>
     );

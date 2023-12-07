@@ -1,7 +1,9 @@
 import React from 'react'
 import { useConfiguratorFormContext } from 'src/contexts/ConfiguratorFormContext'
 import {Link} from 'react-router-dom'
-import { CRow, CButtonToolbar, CButtonGroup, CButton} from '@coreui/react'
+import { CRow, CButtonToolbar, CButtonGroup, CButton, CCard ,CCardImage ,CCardBody ,CCardTitle,CCardText, CCol} from '@coreui/react'
+
+import collatorImage from '../../assets/images/colllator.png'
 
 const ConfiguratorCollators = () => {
 
@@ -11,28 +13,46 @@ const ConfiguratorCollators = () => {
     setCollators(qty)
   }
 
+  const maxAmount = Array.from({ length: 10 }).fill(null);
+
   return (
     <>
       <CRow className='d-flex flex-row'>
           <p className='fs-5 fw-light'>Pick the number of collators to be deployed.</p>
-          <CButtonToolbar className='mt-4' role="group" aria-label="Large button group">
-            <CButtonGroup role="group" aria-label="Third group">
-              <CButton className='fw-light' active={collators === 1 ? true : false} onClick={() => handleClick(1)} color="info" variant="outline">1 Collator</CButton>
-              <CButton className='fw-light' active={collators === 2 ? true : false} onClick={() => handleClick(2)} color="info" variant="outline">2 Collators</CButton>
-              <CButton className='fw-light' active={collators === 3 ? true : false} onClick={() => handleClick(3)} color="info" variant="outline">3 Collators</CButton>
-              <CButton className='fw-light' active={collators === 4 ? true : false} onClick={() => handleClick(4)} color="info" variant="outline">4 Collators</CButton>
-              <CButton className='fw-light' active={collators === 5 ? true : false} onClick={() => handleClick(5)} color="info" variant="outline">5 Collators</CButton>
-              <CButton className='fw-light' active={collators === 6 ? true : false} onClick={() => handleClick(6)} color="info" variant="outline">6 Collators</CButton>
-              <CButton className='fw-light' active={collators === 7 ? true : false} onClick={() => handleClick(7)} color="info" variant="outline">7 Collators</CButton>
-              <CButton className='fw-light' active={collators === 8 ? true : false} onClick={() => handleClick(8)} color="info" variant="outline">8 Collators</CButton>
-              <CButton className='fw-light' active={collators === 9 ? true : false} onClick={() => handleClick(9)} color="info" variant="outline">9 Collators</CButton>
-              <CButton className='fw-light' active={collators === 10 ? true : false} onClick={() => handleClick(10)} color="info" variant="outline">10 Collators</CButton>
-            </CButtonGroup>
-          </CButtonToolbar>
+          <CRow xs={{ cols: 1, gutter: 2 }} xl={{ cols: 4, gutter: 3 }}>
+            {maxAmount.map((val, index)=> {
+              let numberOfCollators = index + 1
+              let item;
+              if(numberOfCollators === 1) {
+                item = (
+                  <CCol xs>
+                    <CCard style={{ width: '18rem' }}>
+                      <CCardImage orientation="top" src={collatorImage} />
+                      <CCardBody className='d-flex flex-row justify-content-around align-items-center'>
+                        <CButton className='fw-light' active={collators === numberOfCollators ? true : false} onClick={() => handleClick(numberOfCollators)} color="info" variant="outline">{numberOfCollators} Collator</CButton>
+                      </CCardBody>
+                    </CCard>
+                  </CCol>
+                )
+              } else {
+                item = (
+                  <CCol xs>
+                    <CCard style={{ width: '18rem' }}>
+                      <CCardImage orientation="top" src={collatorImage} />
+                      <CCardBody className='d-flex flex-row justify-content-around align-items-center'>
+                        <CButton className='fw-light' active={collators === numberOfCollators ? true : false} onClick={() => handleClick(numberOfCollators)} color="info" variant="outline">{numberOfCollators} Collators</CButton>
+                      </CCardBody>
+                    </CCard>
+                  </CCol>
+                )
+              }
+              return item
+            })}
+          </CRow>      
       </CRow>
-      <CRow className='mt-4'>
+      <CRow className='mt-4 mb-4'>
         <Link className='text-center' to="/configure">
-          <CButton className='fw-light'>Confirm</CButton>
+          <CButton variant='outline' color='success' className='fw-light'>Confirm</CButton>
         </Link>
       </CRow>
     </>

@@ -46,7 +46,14 @@ const Configurator = () => {
             <CCardBody>
               <CCardTitle>Select Runtime</CCardTitle>
               <CCardText>
-                {runtime.template ? runtime.template.name : "Please Select a Runtime"}
+                {runtime.template 
+                  ? `${runtime.template.name}   
+                     { ParaID: ${runtime.specs.paraId ? runtime.specs.paraId : ""};  
+                    TokenSymbol: ${runtime.specs.tokenSymbol ? runtime.specs.tokenSymbol: ""};  
+                    SS58: ${runtime.specs.ss58 ? runtime.specs.ss58: ""}; 
+                    Decimals: ${runtime.specs.decimals ? runtime.specs.decimals: ""} } `
+                  : "Please Select a Runtime"
+                }
               </CCardText>
             </CCardBody>
           </CCol>

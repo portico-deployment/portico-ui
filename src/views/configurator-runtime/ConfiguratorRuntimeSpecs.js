@@ -92,7 +92,7 @@ const handleTokenSymbolChange = (event, max, setter) => {
                   size="lg" 
                   aria-label="lg input example"
                   required
-                  feedbackInvalid={paraIdValid ? "" : "Please make it an integer below 10_000"}
+                  feedbackInvalid={paraIdValid ? "" : "Please make it an integer between 2_000 and 10_000"}
                   label="ParaId"
                 />
               </CCol>
@@ -151,7 +151,7 @@ const handleTokenSymbolChange = (event, max, setter) => {
       </CRow>
       <CRow className='mt-4'>
         <CCol className='d-flex justify-content-center'>
-          <CButton type="submit" className='fw-light'>Confirm</CButton>
+          <CButton type="submit" variant='outline' color='success' className='fw-light'>Confirm</CButton>
         </CCol>
       </CRow>
     </CForm>

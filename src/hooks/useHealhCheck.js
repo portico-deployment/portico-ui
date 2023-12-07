@@ -36,7 +36,7 @@ const useHealthCheck = (callback,network) => {
 
         return () => clearInterval(interval);
     }
-  }, [callback, network,failureCount]);
+  }, [callback, network, failureCount]);
 
 
 };
