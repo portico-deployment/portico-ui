@@ -27,7 +27,7 @@ const submit = async ({setStateStatus,localStorageContext, configurationContext}
     
     if (data.result === 'OK') {
         localStorageContext.setNetwork(data.network);
-        localStorageContext.setCoretime({...coretime});
+        localStorageContext.setCoretime({...coretime, scheduled:false});
         configurationContext.restartForm();
         setStateStatus({executing: 'success', status: 'success', message: 'Configuration Submitted'});
     } else {

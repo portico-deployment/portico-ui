@@ -27,12 +27,11 @@ export function ApiConnectRC ({ children }) {
     const [isReady, setIsReady] = useState(false);
     const [provider, setProvider] = useState(null);
     const [rcHeadInfo, setrcHeadInfo] = useState(null);
-    const [coretimeLeft, setCoretimeLeft] = useState(null);
     const [coretimeSchedule, setCoretimeSchedule] = useState([])
     const [paraHead, setParaHead] = useState(null);
     const [paraCodeHash, setParaCodeHash] = useState(null);
     const [paraStatus, setParaStatus] = useState(null);
-    
+
     const [statusAditional, setStatusAditional] = useState("")
     const [statusCancel, setStatusCancel] = useState("")
 
@@ -152,16 +151,11 @@ export function ApiConnectRC ({ children }) {
 
     const scheduleCall = async () => {
         //We want to schedule only if the parachain is onboarded
-        console.log('en schedule call')
-        if(!paraID || !coretime.amount || !coretime.every) return;
+        //This is used only at the very beginning
+        console.log("running first schedule")
+        if(!paraID) return;
         
-        let scheduledBlock;
-
-        if (!coretime.when || coretime.when < parseInt(rcHeadInfo) + parseInt(5)) {
-          scheduledBlock = parseInt(rcHeadInfo) + parseInt(5);
-        } else {
-          scheduledBlock = coretime.when;
-        }
+        const scheduledBlock = parseInt(rcHeadInfo) + parseInt(5);
 
         const id = generateId();
         const keyring = new Keyring({ type: 'sr25519' })
@@ -172,36 +166,34 @@ export function ApiConnectRC ({ children }) {
         
         const schedule = api.tx.scheduler.scheduleNamed(id, scheduledBlock, [coretime.every,coretime.amount], 0, onDemandCall);
         
-        const unsub = await api.tx.sudo
+        await api.tx.sudo
           .sudo(schedule) 
           .signAndSend(alice,({ events = [], status }) => {
-            // console.log("signing and sending")
-            // console.log("STATUS IS FINALIZED", status.isFinalized)
             if (status.isInBlock) {
-              setTxRunning(true)
-              setCoretime({amount: null, every: null, when:null})
-            } else if (status.isFinalized){
-              console.log('status is finalized')
-              unsub()
+              setCoretime({...coretime, scheduled: true})
             } else {
-              console.log('Status of schedule: ' + status.type);
+              // console.log('Status of schedule: ' + status.type);
             }
 
             events.forEach(({ phase, event: { data, method, section } }) => {
               // console.log(phase.toString() + ' : ' + section + '.' + method + ' ' + data.toString());
             });
         });
+        console.log("Finished first schedule")
     }
 
-    // useEffect(() => {
-    //     const schedule = async () => {
-    //         await scheduleCall()
-    //     }
-    //     if (isReady && api && paraStatus === 'Parathread' && coretime.amount && coretime.every && !txRunning) {
-    //       console.log('use effect running')
-    //       schedule()
-    //     }
-    // },[isReady, api, rcHeadInfo, paraStatus])
+    useEffect(() => {
+        const schedule = async () => {
+            await scheduleCall()
+        }
+        
+        // console.log("paraStatus", paraStatus)
+        // console.log("coretime.scheduled", coretime.scheduled )
+        if (isReady && api && paraStatus === 'Parathread' && !coretime.scheduled) {
+          console.log("RUNING IF INSIDE OF USE EFFECT")
+          schedule()
+        }
+    },[paraStatus])
 
     const cancelScheduled = async (id) => {
       if(!!statusCancel.length) return
@@ -222,7 +214,7 @@ export function ApiConnectRC ({ children }) {
     }
 
     return (
-        <ApiContextRC.Provider value={{api, isReady, coretimeLeft, coretimeSchedule, paraHead, paraCodeHash, scheduleAdditional, statusAditional, paraStatus, cancelScheduled, statusCancel, rcHeadInfo}}>
+        <ApiContextRC.Provider value={{api, isReady, coretimeSchedule, scheduleCall, paraHead, paraCodeHash, scheduleAdditional, statusAditional, paraStatus, cancelScheduled, statusCancel, rcHeadInfo}}>
             { children }
         </ApiContextRC.Provider>
     );
