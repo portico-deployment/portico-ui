@@ -86,7 +86,7 @@ export function ApiConnectPara ({ children }) {
         setConnectedApi(null);
         setProvider(null)
         setParaID(null)
-        setParaHeadInfo(null)
+        setParaHeadInfo([])
         await provider.disconnect();
     }
 
