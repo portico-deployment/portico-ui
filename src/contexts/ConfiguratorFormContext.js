@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 
 // Create the context
@@ -6,7 +6,7 @@ const ConfiguratorFormContext = createContext();
 
 const initialState = {
   collators: 0,
-  coretime: {every: null, amount: null },
+  coretime: {every: null, amount: null, when: null},
   runtime: {template: null, specs: {paraId:null, ss58:null, tokenSymbol:null, decimals:null}}
 }
 

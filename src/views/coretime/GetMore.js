@@ -1,0 +1,116 @@
+import React, {useState, useRef} from 'react'
+
+import {CButton, CModalHeader, CModalTitle, CModalBody, CModalFooter, CFormInput, CRow, CCol, CForm} from '@coreui/react'
+
+import { useApiContextRC } from '../../contexts/ConnectRelayContext'
+import { useConfiguratorFormContext } from '../../contexts/ConfiguratorFormContext'
+
+const GetMore = ({setVisible}) => {
+    const { coretime, setCoretime } = useConfiguratorFormContext();
+    const { rcHeadInfo, scheduleAdditional } = useApiContextRC();
+    
+    const [validWhen, setValidWhen] = useState(true)
+    const [validAmount, setValidAmount] = useState(true)
+    const [validEvery, setValidEvery] = useState(true)
+    const [validated, setValidated] = useState(true)
+
+    const handleWhenChange = (event) => {
+        let proposedWhen = Math.floor(Number(event.target.valueAsNumber));
+        if(proposedWhen < parseInt(rcHeadInfo) + parseInt(10)){
+            setValidWhen(false)
+        } else {
+            setValidWhen(true)
+        }
+        setCoretime({...coretime, when: proposedWhen})
+    }
+
+    const handleAmountChange = (event) => {
+        let amount = Math.floor(Number(event.target.valueAsNumber));
+        if (event.target.valueAsNumber > 10000){
+          setValidAmount(false)
+        } else {
+          setValidAmount(true)
+        }
+        setCoretime({...coretime, amount})
+      }
+    
+      const handleEveryChange = (event) => {
+        let every = Math.floor(Number(event.target.valueAsNumber));
+        if (event.target.valueAsNumber > 1000){
+          setValidEvery(false)
+        } else {
+          setValidEvery(true)
+        }
+        setCoretime({...coretime, every})
+      }
+    
+      const handleSubmit = async (event) => {
+        const form = event.currentTarget
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        } else {
+          event.preventDefault()
+          await scheduleAdditional()
+          setVisible(false)
+        }
+        setValidated(true)
+      }
+
+    return(
+        <CForm className="needs-validation" noValidate onSubmit={handleSubmit} validated={validated}>
+        <CModalHeader>
+              <CModalTitle id="VerticallyCenteredExample">Get more Coretime</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+                    <CFormInput 
+                    onChange={() => handleWhenChange(event)}
+                    min={parseInt(rcHeadInfo) + parseInt(10)}
+                    invalid={!validWhen} 
+                    step={1} 
+                    type="number" 
+                    value={coretime.when ? coretime.when : ""} 
+                    size="lg" 
+                    aria-label="lg input example"
+                    feedbackInvalid={validWhen ? "" : `Needs to be at least 10 blocks more than current Relaychain height: ${rcHeadInfo}`}
+                    label={`Execution Block. Needs to be at least 10 blocks more than current Relaychain height (${rcHeadInfo}). If omitted will be scheduled as soon as possible.`}
+                    />
+                    <CFormInput 
+                      max={10000}
+                      onChange={() => handleAmountChange(event)}
+                      invalid={!validAmount} 
+                      step={1} 
+                      type="number" 
+                      value={coretime.amount ? coretime.amount : ""} 
+                      size="lg" 
+                      aria-label="lg input example"
+                      required
+                      feedbackInvalid={validAmount ? "" : "Please make it an integer below 10_000"}
+                      label="Amount. Parachain Blocks to be validated"
+                    />
+                    <CFormInput 
+                    max={1000}
+                    step={1}
+                    onChange={(event) => handleEveryChange(event)}
+                    invalid={!validEvery} 
+                    label="Frequency. Every how many Relaychan Blocks should Parachain blocks be validated"
+                    type="number"
+                    value={coretime.every ? coretime.every : ""}
+                    size="lg"
+                    aria-label="lg input example"
+                    required
+                    feedbackInvalid={validEvery ? "" : "Please make it an integer below 1_000"}
+                    />
+            </CModalBody>
+            <CModalFooter>
+              <CButton color="secondary" onClick={() => setVisible(false)}>
+                  Close
+              </CButton>
+                <CButton type='submit' color="primary">Submit</CButton>
+            </CModalFooter>
+        </CForm>
+    )
+
+}
+
+export default GetMore

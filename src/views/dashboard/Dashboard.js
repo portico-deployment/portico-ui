@@ -37,7 +37,10 @@ import { cutHash } from '../../utilities/handleHash'
 const Dashboard = () => {
   
   const {paraID, paraHeadInfo} = useApiContextPara();
-  const {coretimeLeft, paraHead, paraCodeHash} = useApiContextRC();
+  const {coretimeSchedule, paraHead, paraCodeHash, paraStatus} = useApiContextRC();
+
+  const coretimeLeft = coretimeSchedule.filter(val => val.paraId = paraID).reduce((acc, val) => acc + val.amount, 0)
+
   const paraNodes = useLocalStorageContext().network?.paras?.[paraID]?.map(node =>{
     return {...node, address:""}
   }).sort((node1, node2) => node1.name > node2.name)
@@ -98,7 +101,7 @@ const Dashboard = () => {
                     </CCol>
                   </CCardTitle>
                   <CCardText>
-                    {coretimeLeft ? coretimeLeft : ""}
+                    {paraStatus === 'Onboarding'? paraStatus : coretimeLeft ? coretimeLeft : ""}
                   </CCardText>
                 </CCardBody>
               </CCard>
