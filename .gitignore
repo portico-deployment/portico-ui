@@ -1,6 +1,7 @@
 .cache
 coverage/
 dist/
+build/
 node_modules/
 yarn.lock
 
