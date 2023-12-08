@@ -1,18 +1,20 @@
 import React from 'react'
 
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
-const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
+// Import components directly
+import Dashboard from './views/dashboard/Dashboard';
+import Colors from './views/theme/colors/Colors';
+import Typography from './views/theme/typography/Typography';
 
 //PORTICO
-const Coretime = React.lazy(() => import('./views/coretime/Coretime'))
-const RuntimeUpgrade = React.lazy(() => import('./views/runtime-upgrade/RuntimeUpgrade'))
-const Empty = React.lazy(() => import('./views/empty/Empty'))
-const Configurator = React.lazy(() => import('./views/configurator/Configurator'))
-const ConfiguratorRuntime = React.lazy(() => import('./views/configurator-runtime/ConfiguratorRuntime'))
-const ConfiguratorRuntimeSpecs = React.lazy(() => import('./views/configurator-runtime/ConfiguratorRuntimeSpecs'))
-const ConfiguratorCollators = React.lazy(() => import('./views/configurator-collators/ConfiguratorCollators'))
-const ConfiguratorCoretime = React.lazy(() => import('./views/configurator-coretime/ConfiguratorCoretime'))
+import Coretime from './views/coretime/Coretime';
+import RuntimeUpgrade from './views/runtime-upgrade/RuntimeUpgrade';
+import Empty from './views/empty/Empty';
+import Configurator from './views/configurator/Configurator';
+import ConfiguratorRuntime from './views/configurator-runtime/ConfiguratorRuntime';
+import ConfiguratorRuntimeSpecs from './views/configurator-runtime/ConfiguratorRuntimeSpecs';
+import ConfiguratorCollators from './views/configurator-collators/ConfiguratorCollators';
+import ConfiguratorCoretime from './views/configurator-coretime/ConfiguratorCoretime';
+
 
 
 

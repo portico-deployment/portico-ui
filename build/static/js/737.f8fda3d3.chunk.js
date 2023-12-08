@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunk_coreui_coreui_free_react_admin_template=self.webpackChunk_coreui_coreui_free_react_admin_template||[]).push([[737],{737:(e,r,t)=>{t.r(r),t.d(r,{startWorker:()=>c});var a=t(61555);const c=async()=>{const e=new Worker(new URL(t.p+t.u(909),t.b),{type:void 0,name:"chopsticks-wasm-executor"});return{remote:(0,a.Ud)(e),terminate:async()=>{e.terminate()}}}}}]);
+//# sourceMappingURL=737.f8fda3d3.chunk.js.map
