@@ -27,7 +27,7 @@ const ConfiguratorCollators = () => {
                 item = (
                   <CCol xs>
                     <CCard style={{ width: '18rem' }}>
-                      <CCardImage orientation="top" src={collatorImage} />
+                      <CCardImage orientation="top" src={"/" + collatorImage} />
                       <CCardBody className='d-flex flex-row justify-content-around align-items-center'>
                         <CButton className='fw-light' active={collators === numberOfCollators ? true : false} onClick={() => handleClick(numberOfCollators)} color="info" variant="outline">{numberOfCollators} Collator</CButton>
                       </CCardBody>
@@ -38,7 +38,7 @@ const ConfiguratorCollators = () => {
                 item = (
                   <CCol xs>
                     <CCard style={{ width: '18rem' }}>
-                      <CCardImage orientation="top" src={collatorImage} />
+                      <CCardImage orientation="top" src={"/" + collatorImage} />
                       <CCardBody className='d-flex flex-row justify-content-around align-items-center'>
                         <CButton className='fw-light' active={collators === numberOfCollators ? true : false} onClick={() => handleClick(numberOfCollators)} color="info" variant="outline">{numberOfCollators} Collators</CButton>
                       </CCardBody>
@@ -48,7 +48,7 @@ const ConfiguratorCollators = () => {
               }
               return item
             })}
-          </CRow>      
+          </CRow>
       </CRow>
       <CRow className='mt-4 mb-4'>
         <Link className='text-center' to="/configure">
